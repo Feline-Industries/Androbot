@@ -29,4 +29,6 @@ obj/
 .history
 .ionide
 
+#token file
+token.txt
 # End of https://www.toptal.com/developers/gitignore/api/dotnetcore,visualstudiocode
