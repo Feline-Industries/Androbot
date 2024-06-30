@@ -2,7 +2,7 @@
 androbot is a simple discord bot that responds to certain prompts.
 to get androbot on your server use setup your own bot
 via discord's dev portal:
-[discord](https://discord.com/developers)
+[discord dev](https://discord.com/developers)
 
 you will also have to download and run the bot by using:
 ```

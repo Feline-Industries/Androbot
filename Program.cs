@@ -33,8 +33,12 @@ namespace Androbot
             //this assess created message
             async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs e)
             {
-                if (e.Message.Content.ToLower().StartsWith("boop"))
+                DiscordAttachment firstAttach = e.Message.Attachments.First();
+                if (e.Message.Content.ToLower().StartsWith("boop")){
                     await e.Message.RespondAsync("beep!");
+                } else if(firstAttach.Flags == AttachmentFlags.Spoiler){
+                    await e.Message.RespondAsync($"{e.Message.Author} spoilered");
+                }
             }
 
             //this asses deleted messages
