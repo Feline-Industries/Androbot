@@ -37,7 +37,8 @@ namespace Androbot
                 if (e.Message.Content.ToLower().StartsWith("boop")){
                     await e.Message.RespondAsync("beep!");
                 } else if(firstAttach.Flags == AttachmentFlags.Spoiler){
-                    await e.Message.RespondAsync($"{e.Message.Author} spoilered");
+                    await e.Message.RespondAsync($"{e.
+                    Message.Author.GlobalName} spoilered");
                 }
             }
 
