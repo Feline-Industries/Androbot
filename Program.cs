@@ -22,7 +22,7 @@ namespace Androbot
             DiscordClient discord = new DiscordClient(new DiscordConfiguration(){
             Token = File.ReadAllText("token.txt"),
             TokenType = TokenType.Bot,
-            Intents = DiscordIntents.All | DiscordIntents.MessageContent,
+            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent,
             MinimumLogLevel = LogLevel.Debug,
             LogTimestampFormat = "MMM dd yyyy -- hh:mm:ss tt",
             });
