@@ -33,10 +33,11 @@ namespace Androbot
             //this assess created message
             async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs e)
             {
-                DiscordAttachment firstAttach = e.Message.Attachments.First();
                 if (e.Message.Content.ToLower().StartsWith("boop")){
                     await e.Message.RespondAsync("beep!");
-                } else if(firstAttach.Flags == AttachmentFlags.Spoiler){
+                }
+                DiscordAttachment firstAttach = e.Message.Attachments.First();
+                if(firstAttach.Flags == AttachmentFlags.Spoiler){
                     await e.Message.RespondAsync($"{e.
                     Message.Author.GlobalName} spoilered");
                 }
