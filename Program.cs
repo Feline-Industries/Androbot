@@ -3,24 +3,13 @@ using DisCatSharp.Entities;
 using DisCatSharp.Enums;
 using DisCatSharp.EventArgs;
 using Microsoft.Extensions.Logging;
+using AndroCommands;
 using DisCatSharp.ApplicationCommands;
-using DisCatSharp.ApplicationCommands.Attributes;
-using DisCatSharp.ApplicationCommands.Context;
 
 namespace Androbot
 {
     internal class Program
     {
-        public class GuildCommands : ApplicationCommandsModule
-        {
-            [SlashCommand("Talk","a kind response")]
-            public static async Task Talk(InteractionContext ctx)
-            {
-               await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-               new DiscordInteractionResponseBuilder(new DiscordMessageBuilder()
-               .WithContent("UwU")));
-            }
-        }
         
         static void Main(string[] args)
         {
@@ -41,6 +30,7 @@ namespace Androbot
         static async Task MainAsync()
         {
             DiscordClient discord = DiscordConfig("token.txt");
+            //discord.UseApplicationCommands().RegisterGlobalCommands<GuildCommands>(); //bug occurs with this line
 
             discord.MessageCreated += MessageCreatedHandler;
             discord.MessageDeleted += MessageDeletedHandler;
@@ -48,19 +38,17 @@ namespace Androbot
             //this assess created message
             async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs e)
             {
-                DiscordAttachment firstAttach = e.Message.Attachments.First();
-
-                //note --> fix this to respond with beep!
-                if (e.Message.Content.ToLower().StartsWith("boop"))
+                if (e.Message.Content.ToLower().StartsWith("boop")){
                     await e.Message.RespondAsync("beep!");
-
+                }
+                DiscordAttachment firstAttach = e.Message.Attachments.First();
                 if(firstAttach.Flags == AttachmentFlags.Spoiler){
                     await e.Message.RespondAsync($"{e.
                     Message.Author.GlobalName} spoilered");
                 };
             }
 
-            //this asses deleted messages
+            //this assess deleted messages
             async Task MessageDeletedHandler(DiscordClient s, MessageDeleteEventArgs e){
                 if (e.Message.Content.ToLower().StartsWith("yo")){
                     await e.Message.RespondAsync("hahaha");
@@ -74,4 +62,6 @@ namespace Androbot
         
         
     }
+
+
 }
