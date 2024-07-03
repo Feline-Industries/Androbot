@@ -14,17 +14,16 @@ namespace Androbot
         }
 
         static DiscordSocketClient DiscordConfig(){
-            client = new DiscordSocketClient(new DiscordSocketConfig{
-                MessageCacheSize = 100,
-                AlwaysDownloadUsers = true
+            var client = new DiscordSocketClient(new DiscordSocketConfig{
+                MessageCacheSize = 10000
             });
             return client;
         }
 
         static async Task MainAsync()
         {
-            var token = File.ReadAllText("D:\\Documents\\Code\\Github Repositories\\Androbot\\token.txt");
-            DiscordSocketClient client = DiscordConfig();
+            var token = File.ReadAllText("token.txt");
+            client = DiscordConfig();
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
             
@@ -39,18 +38,23 @@ namespace Androbot
                 if (e.Content.ToLower().StartsWith("boop")){
                     await e.Channel.SendMessageAsync("beep!");
                 }
-                Attachment firstAttach = e.Attachments.First();
-                if(AttachmentExtensions.IsSpoiler(firstAttach)){
-                    await e.Channel.SendMessageAsync($"{e.
-                    Author.GlobalName} spoilered");
-                };
+                if(e.Attachments.Count > 0){
+                    var firstAttach = e.Attachments.First();
+                    if(AttachmentExtensions.IsSpoiler(firstAttach)){
+                        await e.Channel.SendMessageAsync($"{e.
+                        Author.GlobalName} spoilered");
+                    };
+                }
+                
             }
 
             //this assess deleted messages
             async Task MessageDeletedHandler(Cacheable<IMessage, ulong> s, 
             Cacheable<IMessageChannel, ulong> e){
-                var delMessage = await s.GetOrDownloadAsync();
-                var mesChannel = await e.GetOrDownloadAsync();
+                IMessage delMessage = await s.DownloadAsync();
+                Console.WriteLine(s.HasValue);
+                var mesChannel = await e.DownloadAsync();
+                //bug occurs with this conditional because s == null
                 if (delMessage.Content.ToLower().StartsWith("yo")){
                     await mesChannel.SendMessageAsync("aint no way");
                     
