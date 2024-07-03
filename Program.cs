@@ -1,62 +1,63 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
-using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
-using Microsoft.Extensions.Logging;
-using AndroCommands;
-using DisCatSharp.ApplicationCommands;
+﻿using Discord;
+using Discord.WebSocket;
+//using AndroCommands;
 
 namespace Androbot
 {
     internal class Program
     {
+        private static DiscordSocketClient? client;
         
         static void Main(string[] args)
         {
             MainAsync().GetAwaiter().GetResult();
         }
 
-        static DiscordClient DiscordConfig(string tokenLocation){
-            DiscordClient discord = new DiscordClient(new DiscordConfiguration(){
-            Token = File.ReadAllText(tokenLocation),
-            TokenType = TokenType.Bot,
-            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent,
-            MinimumLogLevel = LogLevel.Debug,
-            LogTimestampFormat = "MMM dd yyyy -- hh:mm:ss tt",
+        static DiscordSocketClient DiscordConfig(){
+            client = new DiscordSocketClient(new DiscordSocketConfig{
+                MessageCacheSize = 100,
+                AlwaysDownloadUsers = true
             });
-            return discord;
+            return client;
         }
 
         static async Task MainAsync()
         {
-            DiscordClient discord = DiscordConfig("token.txt");
-            //discord.UseApplicationCommands().RegisterGlobalCommands<GuildCommands>(); //bug occurs with this line
+            var token = File.ReadAllText("D:\\Documents\\Code\\Github Repositories\\Androbot\\token.txt");
+            DiscordSocketClient client = DiscordConfig();
+            await client.LoginAsync(TokenType.Bot, token);
+            await client.StartAsync();
+            
 
-            discord.MessageCreated += MessageCreatedHandler;
-            discord.MessageDeleted += MessageDeletedHandler;
+            client.MessageReceived += MessageCreatedHandler;
+            client.MessageDeleted += MessageDeletedHandler;
+            //setup commands
 
             //this assess created message
-            async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs e)
+            async Task MessageCreatedHandler(SocketMessage e)
             {
-                if (e.Message.Content.ToLower().StartsWith("boop")){
-                    await e.Message.RespondAsync("beep!");
+                if (e.Content.ToLower().StartsWith("boop")){
+                    await e.Channel.SendMessageAsync("beep!");
                 }
-                DiscordAttachment firstAttach = e.Message.Attachments.First();
-                if(firstAttach.Flags == AttachmentFlags.Spoiler){
-                    await e.Message.RespondAsync($"{e.
-                    Message.Author.GlobalName} spoilered");
+                Attachment firstAttach = e.Attachments.First();
+                if(AttachmentExtensions.IsSpoiler(firstAttach)){
+                    await e.Channel.SendMessageAsync($"{e.
+                    Author.GlobalName} spoilered");
                 };
             }
 
             //this assess deleted messages
-            async Task MessageDeletedHandler(DiscordClient s, MessageDeleteEventArgs e){
-                if (e.Message.Content.ToLower().StartsWith("yo")){
-                    await e.Message.RespondAsync("hahaha");
+            async Task MessageDeletedHandler(Cacheable<IMessage, ulong> s, 
+            Cacheable<IMessageChannel, ulong> e){
+                var delMessage = await s.GetOrDownloadAsync();
+                var mesChannel = await e.GetOrDownloadAsync();
+                if (delMessage.Content.ToLower().StartsWith("yo")){
+                    await mesChannel.SendMessageAsync("aint no way");
+                    
                 }
             }
 
            //a list of commands 
-            await discord.ConnectAsync();
             await Task.Delay(-1);
         }
         

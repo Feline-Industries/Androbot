@@ -8,8 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DisCatSharp" Version="10.6.5-nightly-001" />
-    <PackageReference Include="DisCatSharp.ApplicationCommands" Version="10.6.4" />
+    <PackageReference Include="Discord.Net" Version="3.15.2" />
   </ItemGroup>
 
 </Project>
