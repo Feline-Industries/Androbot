@@ -15,7 +15,8 @@ namespace Androbot
 
         static DiscordSocketClient DiscordConfig(){
             var client = new DiscordSocketClient(new DiscordSocketConfig{
-                MessageCacheSize = 100
+                MessageCacheSize = 100,
+                GatewayIntents = GatewayIntents.All
             });
             return client;
         }
@@ -52,7 +53,6 @@ namespace Androbot
             async Task MessageDeletedHandler(Cacheable<IMessage, ulong> s, 
             Cacheable<IMessageChannel, ulong> e){
                 IMessage delMessage = await s.GetOrDownloadAsync();
-                Console.WriteLine(s.HasValue);
                 var mesChannel = await e.GetOrDownloadAsync();
                 if (s.HasValue == true){
                     if (delMessage.Content.ToLower().StartsWith("yo")){
