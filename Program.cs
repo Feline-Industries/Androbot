@@ -15,7 +15,7 @@ namespace Androbot
 
         static DiscordSocketClient DiscordConfig(){
             var client = new DiscordSocketClient(new DiscordSocketConfig{
-                MessageCacheSize = 10000
+                MessageCacheSize = 100
             });
             return client;
         }
@@ -51,14 +51,16 @@ namespace Androbot
             //this assess deleted messages
             async Task MessageDeletedHandler(Cacheable<IMessage, ulong> s, 
             Cacheable<IMessageChannel, ulong> e){
-                IMessage delMessage = await s.DownloadAsync();
+                IMessage delMessage = await s.GetOrDownloadAsync();
                 Console.WriteLine(s.HasValue);
-                var mesChannel = await e.DownloadAsync();
-                //bug occurs with this conditional because s == null
-                if (delMessage.Content.ToLower().StartsWith("yo")){
-                    await mesChannel.SendMessageAsync("aint no way");
+                var mesChannel = await e.GetOrDownloadAsync();
+                if (s.HasValue == true){
+                    if (delMessage.Content.ToLower().StartsWith("yo")){
+                        await mesChannel.SendMessageAsync("aint no way");
                     
+                    }
                 }
+
             }
 
            //a list of commands 
