@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net" Version="3.15.2" />
-    <Content Include="D:\Documents\Code\Github Repositories\Androbot\token.txt" Link="token.txt" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="token.txt" Link="token.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
