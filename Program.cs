@@ -1,6 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
-//using AndroCommands;
+using Discord.Interactions;
+using AndroCommands;
+using System.Reflection;
+
 
 namespace Androbot
 {
@@ -27,8 +30,12 @@ namespace Androbot
             client = DiscordConfig();
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
+            var interactionservice = new InteractionService(client.Rest,new InteractionServiceConfig{
+                LogLevel = LogSeverity.Error
+            });
             
-
+            await interactionservice.RegisterCommandsGloballyAsync();
+            
             client.MessageReceived += MessageCreatedHandler;
             client.MessageDeleted += MessageDeletedHandler;
             //setup commands
@@ -49,7 +56,7 @@ namespace Androbot
                 
             }
 
-            //this assess deleted messages
+            //this assess deleted messages, only works in guilds not in dms
             async Task MessageDeletedHandler(Cacheable<IMessage, ulong> s, 
             Cacheable<IMessageChannel, ulong> e){
                 IMessage delMessage = await s.GetOrDownloadAsync();
@@ -67,8 +74,5 @@ namespace Androbot
             await Task.Delay(-1);
         }
         
-        
     }
-
-
 }

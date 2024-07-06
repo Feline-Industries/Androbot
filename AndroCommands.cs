@@ -1,14 +1,13 @@
-/* using Discord;
+using System.Reflection;
+using Discord;
+using Discord.Interactions;
 
 namespace AndroCommands{
-    public class GuildCommands : ApplicationCommandsModule
+    public class Commands : InteractionModuleBase
         {
-            [SlashCommand("talk","a kind response")]
-            public static async Task Talk(InteractionContext ctx)
-            {
-                await ctx.CreateResponseAsync(InteractionResponseType.ChannelMessageWithSource,
-                new DiscordInteractionResponseBuilder(){Content = "UwU"});
-            }
+        [SlashCommand("Talk","a cute reponse")]
+        public async Task Talk(){
+            await RespondAsync("UwU");
         }
+    }
 }
-     */
