@@ -1,8 +1,7 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using Discord.Interactions;
-using AndroCommands;
 using Discord.Commands;
+using Program;
 
 
 
@@ -12,6 +11,7 @@ namespace Androbot
     {
         private static DiscordSocketClient? client;
         private static CommandService? commands;
+        private static CommandHandler? cmdHandler;
         
         static void Main(string[] args)
         {
@@ -40,20 +40,13 @@ namespace Androbot
             
             //setup commands
             client = DiscordConfig();
-            commands = DiscordService();
-
-            var interactionservice = new InteractionService(client.Rest,new InteractionServiceConfig{
-                LogLevel = LogSeverity.Error
-            });
-
-            await commands.AddModuleAsync(typeof(Commands), null);
-            
             client.Log += Log;
-
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
-            
-            client.Ready += readyClientHandler;
+
+            commands = DiscordService();
+            cmdHandler = new CommandHandler(client, commands);
+            await cmdHandler.InstallCommandsAsync();
             
             client.MessageReceived += MessageCreatedHandler;
             client.MessageDeleted += MessageDeletedHandler;
@@ -85,19 +78,15 @@ namespace Androbot
                 if (s.HasValue == true){
                     if (delMessage.Content.ToLower().StartsWith("yo")){
                         await mesChannel.SendMessageAsync("aint no way");
-                    
                     }
                 }
+                Console.Write($"{delMessage}");
 
             }
 
             static Task Log(LogMessage msg){
                 Console.WriteLine(msg.ToString());
                 return Task.CompletedTask;
-            }
-
-            async Task readyClientHandler(){
-                await Task.Delay(100);
             }
 
            //a list of commands 

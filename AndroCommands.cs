@@ -1,11 +1,13 @@
 using Discord.Commands;
 
-namespace AndroCommands{
+namespace Program{
     public class Commands : ModuleBase<SocketCommandContext>
         {
         [Command("talk")]
+        [Summary("cute response")]
         public async Task Talk(){
-            await ReplyAsync("UwU");
+            Console.WriteLine("command used");
+            await Context.Channel.SendMessageAsync("UwU");
         }
     }
 }
