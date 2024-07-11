@@ -1,13 +1,11 @@
-using System.Reflection;
-using Discord;
-using Discord.Interactions;
+using Discord.Commands;
 
 namespace AndroCommands{
-    public class Commands : InteractionModuleBase
+    public class Commands : ModuleBase<SocketCommandContext>
         {
-        [SlashCommand("Talk","a cute reponse")]
+        [Command("talk")]
         public async Task Talk(){
-            await RespondAsync("UwU");
+            await ReplyAsync("UwU");
         }
     }
 }

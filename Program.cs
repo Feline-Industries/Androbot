@@ -2,7 +2,8 @@
 using Discord.WebSocket;
 using Discord.Interactions;
 using AndroCommands;
-using System.Reflection;
+using Discord.Commands;
+
 
 
 namespace Androbot
@@ -10,6 +11,7 @@ namespace Androbot
     internal class Program
     {
         private static DiscordSocketClient? client;
+        private static CommandService? commands;
         
         static void Main(string[] args)
         {
@@ -24,21 +26,38 @@ namespace Androbot
             return client;
         }
 
+        static CommandService DiscordService(){
+            var command = new CommandService(new CommandServiceConfig{
+                LogLevel = LogSeverity.Error,
+                CaseSensitiveCommands = false
+            });
+            return command;
+        }
+
         static async Task MainAsync()
         {
             var token = File.ReadAllText("token.txt");
+            
+            //setup commands
             client = DiscordConfig();
-            await client.LoginAsync(TokenType.Bot, token);
-            await client.StartAsync();
+            commands = DiscordService();
+
             var interactionservice = new InteractionService(client.Rest,new InteractionServiceConfig{
                 LogLevel = LogSeverity.Error
             });
+
+            await commands.AddModuleAsync(typeof(Commands), null);
             
-            await interactionservice.RegisterCommandsGloballyAsync();
+            client.Log += Log;
+
+            await client.LoginAsync(TokenType.Bot, token);
+            await client.StartAsync();
+            
+            client.Ready += readyClientHandler;
             
             client.MessageReceived += MessageCreatedHandler;
             client.MessageDeleted += MessageDeletedHandler;
-            //setup commands
+            
 
             //this assess created message
             async Task MessageCreatedHandler(SocketMessage e)
@@ -53,6 +72,8 @@ namespace Androbot
                         Author.GlobalName} spoilered");
                     };
                 }
+
+                Console.WriteLine($"{e}");
                 
             }
 
@@ -68,6 +89,15 @@ namespace Androbot
                     }
                 }
 
+            }
+
+            static Task Log(LogMessage msg){
+                Console.WriteLine(msg.ToString());
+                return Task.CompletedTask;
+            }
+
+            async Task readyClientHandler(){
+                await Task.Delay(100);
             }
 
            //a list of commands 
