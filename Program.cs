@@ -1,57 +1,97 @@
-﻿using DisCatSharp;
-using DisCatSharp.Entities;
-using DisCatSharp.Entities.Core;
-using DisCatSharp.Enums;
-using DisCatSharp.EventArgs;
-using Microsoft.Extensions.Logging;
+﻿using Discord;
+using Discord.WebSocket;
+using Discord.Commands;
+using Program;
+
 
 
 namespace Androbot
 {
     internal class Program
     {
+        private static DiscordSocketClient? client;
+        private static CommandService? commands;
+        private static CommandHandler? cmdHandler;
         
         static void Main(string[] args)
         {
             MainAsync().GetAwaiter().GetResult();
         }
 
-        
+        static DiscordSocketClient DiscordConfig(){
+            var client = new DiscordSocketClient(new DiscordSocketConfig{
+                MessageCacheSize = 100,
+                GatewayIntents = GatewayIntents.All
+            });
+            return client;
+        }
+
+        static CommandService DiscordService(){
+            var command = new CommandService(new CommandServiceConfig{
+                LogLevel = LogSeverity.Error,
+                CaseSensitiveCommands = false
+            });
+            return command;
+        }
+
         static async Task MainAsync()
         {
-            DiscordClient discord = new DiscordClient(new DiscordConfiguration(){
-            Token = File.ReadAllText("token.txt"),
-            TokenType = TokenType.Bot,
-            Intents = DiscordIntents.AllUnprivileged | DiscordIntents.MessageContent,
-            MinimumLogLevel = LogLevel.Debug,
-            LogTimestampFormat = "MMM dd yyyy -- hh:mm:ss tt",
-            });
+            var token = File.ReadAllText("token.txt");
+            
+            //setup commands
+            client = DiscordConfig();
+            client.Log += Log;
+            await client.LoginAsync(TokenType.Bot, token);
+            await client.StartAsync();
 
-            discord.MessageCreated += MessageCreatedHandler;
-            discord.MessageDeleted += MessageDeletedHandler;
+            commands = DiscordService();
+            cmdHandler = new CommandHandler(client, commands);
+            await cmdHandler.InstallCommandsAsync();
+            
+            client.MessageReceived += MessageCreatedHandler;
+            client.MessageDeleted += MessageDeletedHandler;
+            
 
             //this assess created message
-            async Task MessageCreatedHandler(DiscordClient s, MessageCreateEventArgs e)
+            async Task MessageCreatedHandler(SocketMessage e)
             {
-                if (e.Message.Content.ToLower().StartsWith("boop")){
-                    await e.Message.RespondAsync("beep!");
+                if (e.Content.ToLower().StartsWith("boop")){
+                    await e.Channel.SendMessageAsync("beep!");
                 }
-                DiscordAttachment firstAttach = e.Message.Attachments.First();
-                if(firstAttach.Flags == AttachmentFlags.Spoiler){
-                    await e.Message.RespondAsync($"{e.
-                    Message.Author.GlobalName} spoilered");
+                if(e.Attachments.Count > 0){
+                    var firstAttach = e.Attachments.First();
+                    if(AttachmentExtensions.IsSpoiler(firstAttach)){
+                        await e.Channel.SendMessageAsync($"{e.
+                        Author.GlobalName} spoilered");
+                    };
                 }
+
+                Console.WriteLine($"{e}");
+                
             }
 
-            //this asses deleted messages
-            async Task MessageDeletedHandler(DiscordClient s, MessageDeleteEventArgs e){
-                if (e.Message.Content.ToLower().StartsWith("yo")){
-                    await e.Message.RespondAsync("hahaha");
+            //this assess deleted messages, only works in guilds not in dms
+            async Task MessageDeletedHandler(Cacheable<IMessage, ulong> s, 
+            Cacheable<IMessageChannel, ulong> e){
+                IMessage delMessage = await s.GetOrDownloadAsync();
+                var mesChannel = await e.GetOrDownloadAsync();
+                if (s.HasValue == true){
+                    if (delMessage.Content.ToLower().StartsWith("yo")){
+                        await mesChannel.SendMessageAsync("aint no way");
+                    }
                 }
+                Console.Write($"{delMessage}");
+
             }
-            
-            await discord.ConnectAsync();
+
+            static Task Log(LogMessage msg){
+                Console.WriteLine(msg.ToString());
+                return Task.CompletedTask;
+            }
+
+           //a list of commands 
             await Task.Delay(-1);
         }
+        
     }
 }
