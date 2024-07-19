@@ -2,6 +2,7 @@
 using Discord.WebSocket;
 using Discord.Commands;
 using Program;
+using Microsoft.Extensions.DependencyInjection;
 
 
 
@@ -9,15 +10,13 @@ namespace Androbot
 {
     internal class Program
     {
+        //Variables
         private static DiscordSocketClient? client;
         private static CommandService? commands;
         private static CommandHandler? cmdHandler;
-        
-        static void Main(string[] args)
-        {
-            MainAsync().GetAwaiter().GetResult();
-        }
+        public static IServiceProvider? serviceProvider {get; set;}
 
+        //Config/Creation Commands for later code
         static DiscordSocketClient DiscordConfig(){
             var client = new DiscordSocketClient(new DiscordSocketConfig{
                 MessageCacheSize = 100,
@@ -34,12 +33,33 @@ namespace Androbot
             return command;
         }
 
+        static IServiceProvider CreateProvider(){
+            var config = new DiscordSocketConfig{
+                MessageCacheSize = 100,
+                GatewayIntents = GatewayIntents.All
+            };
+
+            var collection =  new ServiceCollection()
+            .AddSingleton(config)
+            .AddSingleton<DiscordSocketClient>();
+
+            return collection.BuildServiceProvider();
+        }
+
+        //Main Function
+        static void Main(string[] args)
+        {
+            serviceProvider = CreateProvider();
+            MainAsync().GetAwaiter().GetResult();
+        }
+
         static async Task MainAsync()
         {
             var token = File.ReadAllText("token.txt");
             
             //setup commands
             client = DiscordConfig();
+            client = serviceProvider.GetRequiredService<DiscordSocketClient>();
             client.Log += Log;
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
@@ -89,8 +109,8 @@ namespace Androbot
                 return Task.CompletedTask;
             }
 
-           //a list of commands 
-            await Task.Delay(-1);
+           //loops
+            await Task.Delay(Timeout.Infinite);
         }
         
     }

@@ -17,7 +17,7 @@ namespace Program{
         public async Task InstallCommandsAsync(){
             client.MessageReceived += HandleCommandAsync;
 
-            await commands.AddModulesAsync(Assembly.GetEntryAssembly(), null);
+            await commands.AddModulesAsync(Assembly.GetEntryAssembly(), services: Androbot.Program.serviceProvider);
         }
 
         private async Task HandleCommandAsync(SocketMessage mes){
