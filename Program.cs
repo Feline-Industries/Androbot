@@ -3,8 +3,7 @@ using Discord.WebSocket;
 using Discord.Commands;
 using Program;
 using Microsoft.Extensions.DependencyInjection;
-
-
+using Discord.Interactions;
 
 namespace Androbot
 {
@@ -60,6 +59,7 @@ namespace Androbot
             //setup commands
             client = DiscordConfig();
             client = serviceProvider.GetRequiredService<DiscordSocketClient>();
+            var _interactionService = new InteractionService(client.Rest);
             client.Log += Log;
             await client.LoginAsync(TokenType.Bot, token);
             await client.StartAsync();
@@ -70,6 +70,8 @@ namespace Androbot
             
             client.MessageReceived += MessageCreatedHandler;
             client.MessageDeleted += MessageDeletedHandler;
+
+            
             
 
             //this assess created message
